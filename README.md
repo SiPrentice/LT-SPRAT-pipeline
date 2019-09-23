@@ -1,7 +1,7 @@
 # LT-SPRAT-pipeline
 A quick pipeline for manual reductions of SPRAT spectra
 
-Required Pyraf, see Astroconda
+Requires Pyraf, see Astroconda
 
 To run, enter the pyraf conda environment of your choice, navigate to the folder with the files and type 'python manulaextraction.py'
 
