@@ -9,7 +9,7 @@ Download both the arc and the the spectrum files from the LT repository. Rename 
 
 Pipeline will ask to extract arc first. Follow standard iraf commands, usually lots of 'y', occasionally type 'q' to quit the window
 
-On line identification. Press 'n' in the iraf window over the strongest line, enter 7642 and press enter
+On line identification. Press 'n' . (may be 'm'...) in the iraf window over the strongest line, enter 7642 and press enter
 Press 'n' over the second strongest line, type 4671 and press enter. Press 'l' to automatically find the lines.
 
 Next, extract the spectrum as per standard IRAF procedures
