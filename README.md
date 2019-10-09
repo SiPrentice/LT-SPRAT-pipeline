@@ -19,3 +19,5 @@ The rest of the pipeline should run automatically.
 The final flux calibration applys a correction to the spectrum using the standard star used in the sensitivity function. This compensates for some of the calibration and throughput issues with SPRAT. Another consequence that it applies a telluric correction. Future updates will see corrections for different airmasses.
 
 4/10/19 Set apextract DISPAXIS = 1. Will include this in the next iteration.
+
+9/10/19 Updated to automatically assign arc file
