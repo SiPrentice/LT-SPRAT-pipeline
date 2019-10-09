@@ -5,7 +5,7 @@ Requires Pyraf, see Astroconda
 
 To run, enter the pyraf conda environment of your choice, navigate to the folder with the files and type 'python manualextraction.py'
 
-Download both the arc and the the spectrum files from the LT repository. Rename arc file to 'arc.fits'
+Download both the arc and the the spectrum files from the LT repository.
 
 Pipeline will ask to extract arc first. Follow standard iraf commands, usually lots of 'y', occasionally type 'q' to quit the window
 
