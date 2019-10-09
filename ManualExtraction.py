@@ -174,9 +174,8 @@ if apply_flux_correction != 'n':
     
     for q in range(len(a[0])):
         find = np.argmin(abs(s[0]-a[0][q]))
-        #print a[0][q], a[1][q],s[1][find]
         a[1][q] = a[1][q]*s[1][find]
-        #print a[1][q]
+
          
     print('\n'+file_to_use + ' corrected to ManualExtractionFluxCorrections.txt')
     master = zip(a[0],a[1])
