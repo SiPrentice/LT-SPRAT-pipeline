@@ -1,23 +1,24 @@
 #### Manual extraction pipeline. Extracts arc, identifies lines, extracts spectrum for multiple file and wavelength calibrates. 
-#### v.14/08/19
+#### Flux calibrates to sensitivity function, then corrects to spectrostandard. 
+#### Automatically removes previous extraction files when extract_spectra = 'y'
 
 from pyraf import iraf
 import os
 import glob
 import numpy as np
+from astropy.io import fits
 
 ############################
-obj = ''
+obj = 'AT2019'+''
 z = 0.0
-extract_arc = 'y'  ### Extract the arc fits file for wavelength calibration
-extract_spectra = 'y' ### Extract the spectrum from the fits file
-flux_calibrate  = 'y' ### Flux calibrate the spectrum to the sensitivity function
-apply_flux_correction = 'y' ### Apply the correction to the standard star. If you want to manually remove CRs and noise from the spectra then flux calibrate the spectrum again, leave this as 'y'
-                            ### and set all other parameters to 'n'
-plotgal = 'n'  ### Plot the position of Galaxy lines 
-plotvel = 'n'  ### Plot line velocities
+extract_arc = 'y'
+extract_spectra = 'y'
+flux_calibrate  = 'y'
+apply_flux_correction = 'y'
+plotgal = 'y'
+plotvel = 'n'
 velocity = 15500
-E = 1e-5 ### Extinction
+E = 1e-5
 ############################
 
 ####### Define function
@@ -40,21 +41,36 @@ def dered(wav,flux,Rv,Ebv):
    F=10**(Al/2.5)
    delF= flux*F
    return delF
+   
+def isarc(fits_file):
+    hdul = fits.open(fits_file)
+    hdr = hdul[0].header
+    if 'OBSTYPE' in hdr:
+        if hdr['OBSTYPE']=='ARC':
+            return True
+    else:
+        return False 
 
 ### misc definitions
 spectrafilelist='@speclist'
 sensfile='newsen'
-arcfile='./arc.fits'
 hthresh2=90000
 
 
 ### make a list of the files
 ## create the speclist but importing all fits files in folder but rejecting the sensfunc file, arc, and previous extraction files
 file_list = glob.glob('./*.fits');file_list.sort()
+
+### find arcfile
+for f in file_list:
+    if isarc(f) == True:
+        arcfile = f
+        
+### find object file        
 final=[]
 for j in range(len(file_list)):
     if sensfile not in file_list[j]:
-        if 'arc' not in file_list[j]:
+        if arcfile not in file_list[j]:
             if '.ms.fits' not in file_list[j]:
                 if '.w.fits' not in file_list[j]: 
                     final.append(file_list[j])
@@ -73,7 +89,7 @@ if extract_arc !='n':
 
     ## identify lines
     print('\n'+'Identify arc lines')
-    iraf.identify(images='arc.ms.fits',coordlist='Xe.txt', function='spline3',order=3,maxfeatures=10)
+    iraf.identify(images='arc.ms',coordlist='Xe.txt', function='spline3',order=3,maxfeatures=10)
 
 if extract_spectra !='n':
   
@@ -110,6 +126,7 @@ final=[]
 for j in range(len(file_list)):
     if 'fits.w.fits' in file_list[j]: 
         final.append(file_list[j])
+        
 np.savetxt('./speclist',final,fmt="%s")
 
 ## extract the date. file_list[3] is used because arc.fits, arc.ms.fits, and the sensfile take up the first three positions
@@ -157,7 +174,9 @@ if apply_flux_correction != 'n':
     
     for q in range(len(a[0])):
         find = np.argmin(abs(s[0]-a[0][q]))
+        #print a[0][q], a[1][q],s[1][find]
         a[1][q] = a[1][q]*s[1][find]
+        #print a[1][q]
          
     print('\n'+file_to_use + ' corrected to ManualExtractionFluxCorrections.txt')
     master = zip(a[0],a[1])
@@ -209,7 +228,6 @@ if apply_flux_correction != 'n':
     a = np.loadtxt(file_to_use[:-4]+'.w.txt',unpack=True)
     plt.plot(a[0]/(1.+z),a[1]/max(a[1]),color='red',alpha=0.7,linewidth=1,label='Corrected')
     plt.legend()
-
     plt.xlabel('Rest-frame wavelength [$\AA$]')
     plt.ylabel('Scaled flux')
     plt.savefig('./'+obj+'_compare.pdf',bbox_inches='tight')
